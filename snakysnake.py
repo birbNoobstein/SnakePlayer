@@ -42,10 +42,9 @@ def draw_grid(interval):
     fig.savefig('plgrnd2.png', dpi=my_dpi)
     
     
-def find_positions():
-    pass
 
-def create_grids(game_window, vertical_loc, horizontal_loc):
+
+def create_grid(game_window, vertical_loc, horizontal_loc):
     """ 
         Creates 2D-array that represents the game-window
         Checks colors in the middle of each square:
@@ -78,8 +77,8 @@ def create_grids(game_window, vertical_loc, horizontal_loc):
 
 def window_position(frame, lowpoints = [0, 0], initial=False):
     """ 
-        Finds the position of the game-window
-        and its width and height
+        Finds the position of the game-window (where window starts from left and up)
+        Finds game-window width and height
     """
     background_color_dark = (0, 0, 0)
     background_color_light = (5, 5, 5)
@@ -124,10 +123,10 @@ def start_game(url):
     vertical_locations = np.array(range(round(square_side/2), playground[3], square_side)).astype(int)
     horizontal_locations = np.array(range(round(square_side/2), playground[2], square_side)).astype(int)
     
-    print(vertical_locations, horizontal_locations)
-    draw_grid(square_side)
+    #print(vertical_locations, horizontal_locations)
+    #draw_grid(square_side)
     
-    create_grids(playground_scs, vertical_locations, horizontal_locations)
+    create_grid(playground_scs, vertical_locations, horizontal_locations)
     
     
 if __name__ == '__main__':
