@@ -22,3 +22,8 @@ The game-window consists of 20 rows and X columns. The game-window dimentions ar
 | Green              | Snake             |    2         |
 
 
+##### Images:
+- `initial` --> To locate game-window
+- `playground` --> Game-window only
+- `plgrnd` --> Laptop screen game-window (20 x 50 grid)
+- `plgrnd2` --> Bigger screen game-window (20 x 47 grid)
