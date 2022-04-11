@@ -18,7 +18,7 @@ from PIL import Image
 
 import sys; sys.path.append(".")
 
-def draw_grid():
+def draw_grid(interval):
     """ 
         Draws grid on game-window screenshot for easier interpretation
     """
@@ -28,7 +28,7 @@ def draw_grid():
     fig=plt.figure(figsize=(float(image.size[0])/my_dpi,float(image.size[1])/my_dpi),dpi=my_dpi)
     ax=fig.add_subplot(111)
     fig.subplots_adjust(left=0,right=1,bottom=0,top=1)
-    interval=26
+
     
     locx = plticker.MultipleLocator(base=interval)
     locy = plticker.MultipleLocator(base=interval)
@@ -39,7 +39,7 @@ def draw_grid():
     ax.imshow(image)
     
             
-    fig.savefig('plgrnd.png', dpi=my_dpi)
+    fig.savefig('plgrnd2.png', dpi=my_dpi)
     
     
 def find_positions():
@@ -120,12 +120,12 @@ def start_game(url):
     playground_scs = pg.screenshot(region=playground)
     playground_scs.save('playground.png')
     
-    square_side = round(playground[2]/50)
+    square_side = round(playground[3]/20)
     vertical_locations = np.array(range(round(square_side/2), playground[3], square_side)).astype(int)
     horizontal_locations = np.array(range(round(square_side/2), playground[2], square_side)).astype(int)
     
     print(vertical_locations, horizontal_locations)
-    draw_grid()
+    draw_grid(square_side)
     
     create_grids(playground_scs, vertical_locations, horizontal_locations)
     
