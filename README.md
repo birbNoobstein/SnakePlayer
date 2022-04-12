@@ -27,3 +27,10 @@ The game-window consists of 20 rows and X columns. The game-window dimentions ar
 - `playground` --> Game-window only
 - `plgrnd` --> Laptop screen game-window (20 x 50 grid)
 - `plgrnd2` --> Bigger screen game-window (20 x 47 grid)
+
+
+
+Notes:
+- Everytime snake reaches the apple it gets longer for 4 squares
+- When snake reaches apple it's head changes location to apple location
+- At that point new screenshot of the game-window is taken to get the new apple location
