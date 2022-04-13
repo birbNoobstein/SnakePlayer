@@ -39,7 +39,7 @@ def draw_grid(interval):
     ax.imshow(image)
     
             
-    fig.savefig('plgrnd2.png', dpi=my_dpi)
+    fig.savefig('plgrnd3.png', dpi=my_dpi)
     
     
 
@@ -53,7 +53,7 @@ def create_grid(game_window, vertical_loc, horizontal_loc):
                                 -otherwise value is 0
     """
     red = (255, 0, 0)
-    green = (53, 222, 0)
+    green = (53,222,0)
     
     grid_values = np.zeros((vertical_loc.shape[0], horizontal_loc.shape[0]))
     
@@ -85,7 +85,7 @@ def window_position(frame, lowpoints = [0, 0], initial=False):
     background_w, background_h = [], []
     
     for w in range(lowpoints[0], frame.width):
-        for h in range(lowpoints[1], frame.height):
+        for h in range(lowpoints[1], frame.height-40):
             if frame.getpixel((w, h)) >= background_color_dark and frame.getpixel((w, h)) <= background_color_light:
                 background_w.append(w)
                 background_h.append(h)
