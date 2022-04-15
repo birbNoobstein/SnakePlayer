@@ -6,16 +6,16 @@ Created on Mon Apr 11 12:22:49 2022
 """
 import numpy as np
 
-def manhattan(snake, apple):
+def euclidian(snake, apple):
     return np.sqrt(np.sum(np.power(np.subtract(snake, apple), 2)))
 
 
 def astar(grid, snake_length, snake_head_loc, apple):
     """ 
         Finds the best path to the apple
-        Uses Manhattan distance
+        Uses Euclidian distance
     """
-    snake_to_apple = manhattan(snake_head_loc, apple)
+
     
     snake = snake_head_loc
     
@@ -26,13 +26,13 @@ def astar(grid, snake_length, snake_head_loc, apple):
                      'down':np.inf,
                      'right':np.inf}
         if snake[0] > 0:
-            distances['up'] = manhattan(np.array([snake[0]-1, snake[1]]), apple)
+            distances['up'] = euclidian(np.array([snake[0]-1, snake[1]]), apple)
         if snake[1] > 0:
-            distances['left'] = manhattan(np.array([snake[0], snake[1]-1]), apple)
+            distances['left'] = euclidian(np.array([snake[0], snake[1]-1]), apple)
         if snake[0] < grid.shape[0]-1:
-            distances['down'] = manhattan(np.array([snake[0]+1, snake[1]]), apple)
+            distances['down'] = euclidian(np.array([snake[0]+1, snake[1]]), apple)
         if snake[1] < grid.shape[1]-1:
-            distances['right'] = manhattan(np.array([snake[0], snake[1]+1]), apple)
+            distances['right'] = euclidian(np.array([snake[0], snake[1]+1]), apple)
             
         
         move = min(distances, key=distances.get)
