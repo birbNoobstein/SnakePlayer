@@ -99,8 +99,19 @@ def window_position(frame, lowpoints = [0, 0], initial=False):
     return (position_left, position_up, width, height)
                 
 
-def play_game():
-    pass
+def play_game(path, snake_head, vertical_locations, 
+              horizontal_locations, playground):
+    for p in path:
+        if p == 'up':
+            #pg.moveTo(vertical_locations[snake_head[0]+1], horizontal_locations[snake_head[1]])
+            pg.click(playground[0] + vertical_locations[snake_head[0]-1], playground[1] + horizontal_locations[snake_head[1]])
+        elif p == 'left':
+            pg.click(playground[0] + vertical_locations[snake_head[0]], playground[1] + horizontal_locations[snake_head[1]-1])
+        elif p == 'down':
+            pg.click(playground[0] + vertical_locations[snake_head[0]+1], playground[1] + horizontal_locations[snake_head[1]])
+        else:
+            pg.click(playground[0] + vertical_locations[snake_head[0]], playground[1] + horizontal_locations[snake_head[1]+1])
+    
 
 def start_game(url):
     """ 
@@ -128,6 +139,9 @@ def start_game(url):
     #draw_grid(square_side)
     
     create_grid(playground_scs, vertical_locations, horizontal_locations)
+    
+    path = ['up', 'down', 'left', 'right']
+    play_game(path, [10, 25], vertical_locations, horizontal_locations, playground[0], playground[1])
     
     
 if __name__ == '__main__':
