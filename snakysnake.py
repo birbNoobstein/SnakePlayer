@@ -10,6 +10,7 @@ from selenium import webdriver
 import time
 
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import numpy as np
@@ -105,7 +106,7 @@ def start_game(url):
     """ 
         Opens game, finds the game-window position/dimention
     """
-    game = webdriver.Chrome(ChromeDriverManager().install())
+    game = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     game.maximize_window()
     game.get(url)
 
