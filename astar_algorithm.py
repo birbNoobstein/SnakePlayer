@@ -10,7 +10,7 @@ def euclidian(snake, apple):
     return np.sqrt(np.sum(np.power(np.subtract(snake, apple), 2)))
 
 
-def astar(grid, snake_length, snake_head_loc, apple):
+def astar(grid, snake_length, snake_head_loc, apple, previous):
     """ 
         Finds the best path to the apple
         Uses Euclidian distance
@@ -25,13 +25,13 @@ def astar(grid, snake_length, snake_head_loc, apple):
                      'left':np.inf,
                      'down':np.inf,
                      'right':np.inf}
-        if snake[0] > 0:
+        if snake[0] > 0 and previous != 'up':
             distances['up'] = euclidian(np.array([snake[0]-1, snake[1]]), apple)
-        if snake[1] > 0:
+        if snake[1] > 0 and previous != 'left':
             distances['left'] = euclidian(np.array([snake[0], snake[1]-1]), apple)
-        if snake[0] < grid.shape[0]-1:
+        if snake[0] < grid.shape[0]-1 and previous != 'down':
             distances['down'] = euclidian(np.array([snake[0]+1, snake[1]]), apple)
-        if snake[1] < grid.shape[1]-1:
+        if snake[1] < grid.shape[1]-1 and previous != 'right':
             distances['right'] = euclidian(np.array([snake[0], snake[1]+1]), apple)
             
         
@@ -49,6 +49,7 @@ def astar(grid, snake_length, snake_head_loc, apple):
         grid[snake[0], snake[1]] = 2
         #print(snake, apple)
         yield move
+        previous = move
         if snake[0] == apple[0] and snake[1] == apple[1]:
             break
     

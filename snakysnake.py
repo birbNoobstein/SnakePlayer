@@ -21,6 +21,31 @@ from astar_algorithm import astar
 
 import sys; sys.path.append(".")
 
+
+def new_apple_position(vertical_loc, horizontal_loc, playground):
+    """ 
+        Returns position of the apple
+    """
+    game_window = pg.screenshot(region=playground)
+    red = (255, 0, 0)
+    
+    for v in range(vertical_loc.shape[0]):
+        for h in range(horizontal_loc.shape[0]):
+            if game_window.getpixel((int(horizontal_loc[h]),
+                                     int(vertical_loc[v]))) == red:
+                return [v, h]
+            
+            
+def move(width, height, lvl, direction, past):
+    """ 
+        Clicks in front of the snake to change its direction
+    """
+    if lvl == 0 or direction != past:
+        pg.click(width, height)
+    else:
+        time.sleep(0.01)
+    
+
 def draw_grid(interval):
     """ 
         Draws grid on game-window screenshot for easier interpretation
@@ -99,27 +124,31 @@ def window_position(frame, lowpoints = [0, 0], initial=False):
     return (position_left, position_up, width, height)
                 
 
-def play_game(path, snake_head, vertical_locations, 
-              horizontal_locations, playground):
+def play_game(path, snake_head, vertical_locations, horizontal_locations, playground):
     for e, p in enumerate(path):
-        if e == 0 or p != path[e-1]:
-            if p == 'up':
-                pg.click(playground[1]+horizontal_locations[snake_head[1]], 
-                         playground[0]+vertical_locations[snake_head[0]-1], button='left')
-                snake_head = [snake_head[0]-1, snake_head[1]]
-            elif p == 'left':
-                pg.click(playground[1]+horizontal_locations[snake_head[1]-1], 
-                         playground[0]+vertical_locations[snake_head[0]], button='left')
-                snake_head = [snake_head[0], snake_head[1]-1]
-            elif p == 'down':
-                pg.click(playground[1]+horizontal_locations[snake_head[1]], 
-                         playground[0]+vertical_locations[snake_head[0]+1], button='left')
-                snake_head = [snake_head[0]+1, snake_head[1]]                    
-            else:
-                pg.click(playground[1]+horizontal_locations[snake_head[1]+1], 
-                         playground[0]+vertical_locations[snake_head[0]], button='left')
-                snake_head = [snake_head[0], snake_head[1]+1]
-        time.sleep(0.1)
+        if p == 'up':
+            move(horizontal_locations[snake_head[1]], 
+                 playground[1]+vertical_locations[snake_head[0]-1], 
+                 e, p, path[e-1])
+            snake_head = [snake_head[0]-1, snake_head[1]]
+        elif p == 'left':
+            move(horizontal_locations[snake_head[1]-1], 
+                 playground[1]+vertical_locations[snake_head[0]], 
+                 e, p, path[e-1])
+            snake_head = [snake_head[0], snake_head[1]-1]
+        elif p == 'down':
+            move(horizontal_locations[snake_head[1]], 
+                 playground[1]+vertical_locations[snake_head[0]+1], 
+                 e, p, path[e-1])
+            snake_head = [snake_head[0]+1, snake_head[1]]                    
+        else:
+            move(horizontal_locations[snake_head[1]+1], 
+                 playground[1]+vertical_locations[snake_head[0]], 
+                 e, p, path[e-1])
+            snake_head = [snake_head[0], snake_head[1]+1]
+        print(p, snake_head)
+        print(pg.position())
+        time.sleep(0.04)
     
 
 def start_game(url):
@@ -149,9 +178,17 @@ def start_game(url):
     
     grid, snake, apple = create_grid(playground_scs, vertical_locations, horizontal_locations)
     
-    path = list(astar(grid, 1, snake, apple))
-    play_game(path, snake, vertical_locations, horizontal_locations, playground)
+    snake_len = 1
+    previous = None
     
+    for i in range(6):
+        path = list(astar(grid, snake_len, snake, apple, None))
+        #pg.moveTo(playground[0]+playground[2]/2, playground[1]+playground[3]/2)
+        play_game(path, snake, vertical_locations, horizontal_locations, playground)
+        snake_len += 4
+        snake = apple
+        apple = new_apple_position(vertical_locations, horizontal_locations, playground)
+        previous = path[-1]
     
 if __name__ == '__main__':
     start_game("https://www.coolmathgames.com/0-snake/play")
