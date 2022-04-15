@@ -17,6 +17,8 @@ import numpy as np
 import pyautogui as pg
 from PIL import Image
 
+from astar_algorithm import astar
+
 import sys; sys.path.append(".")
 
 def draw_grid(interval):
@@ -58,22 +60,20 @@ def create_grid(game_window, vertical_loc, horizontal_loc):
     
     grid_values = np.zeros((vertical_loc.shape[0], horizontal_loc.shape[0]))
     
-    print(game_window.width, game_window.height)
     
     for v in range(vertical_loc.shape[0]):
         for h in range(horizontal_loc.shape[0]):
             if game_window.getpixel((int(horizontal_loc[h]),
                                      int(vertical_loc[v]))) == red:
                 grid_values[v, h] = 1
-                print('red:', v, h)
+                apple = [v, h]
             elif game_window.getpixel((int(horizontal_loc[h]),
                                      int(vertical_loc[v]))) == green:
                 grid_values[v, h] = 2
-                print('green:', v, h)
+                snake = [v, h]
     
-    print(grid_values)
-    print(grid_values.shape)
-    return grid_values
+    
+    return grid_values, snake, apple
 
 
 def window_position(frame, lowpoints = [0, 0], initial=False):
@@ -101,16 +101,25 @@ def window_position(frame, lowpoints = [0, 0], initial=False):
 
 def play_game(path, snake_head, vertical_locations, 
               horizontal_locations, playground):
-    for p in path:
-        if p == 'up':
-            #pg.moveTo(vertical_locations[snake_head[0]+1], horizontal_locations[snake_head[1]])
-            pg.click(playground[0] + vertical_locations[snake_head[0]-1], playground[1] + horizontal_locations[snake_head[1]])
-        elif p == 'left':
-            pg.click(playground[0] + vertical_locations[snake_head[0]], playground[1] + horizontal_locations[snake_head[1]-1])
-        elif p == 'down':
-            pg.click(playground[0] + vertical_locations[snake_head[0]+1], playground[1] + horizontal_locations[snake_head[1]])
-        else:
-            pg.click(playground[0] + vertical_locations[snake_head[0]], playground[1] + horizontal_locations[snake_head[1]+1])
+    for e, p in enumerate(path):
+        if e == 0 or p != path[e-1]:
+            if p == 'up':
+                pg.click(playground[1]+horizontal_locations[snake_head[1]], 
+                         playground[0]+vertical_locations[snake_head[0]-1], button='left')
+                snake_head = [snake_head[0]-1, snake_head[1]]
+            elif p == 'left':
+                pg.click(playground[1]+horizontal_locations[snake_head[1]-1], 
+                         playground[0]+vertical_locations[snake_head[0]], button='left')
+                snake_head = [snake_head[0], snake_head[1]-1]
+            elif p == 'down':
+                pg.click(playground[1]+horizontal_locations[snake_head[1]], 
+                         playground[0]+vertical_locations[snake_head[0]+1], button='left')
+                snake_head = [snake_head[0]+1, snake_head[1]]                    
+            else:
+                pg.click(playground[1]+horizontal_locations[snake_head[1]+1], 
+                         playground[0]+vertical_locations[snake_head[0]], button='left')
+                snake_head = [snake_head[0], snake_head[1]+1]
+        time.sleep(0.1)
     
 
 def start_game(url):
@@ -138,10 +147,10 @@ def start_game(url):
     #print(vertical_locations, horizontal_locations)
     #draw_grid(square_side)
     
-    create_grid(playground_scs, vertical_locations, horizontal_locations)
+    grid, snake, apple = create_grid(playground_scs, vertical_locations, horizontal_locations)
     
-    path = ['up', 'down', 'left', 'right']
-    play_game(path, [10, 25], vertical_locations, horizontal_locations, playground[0], playground[1])
+    path = list(astar(grid, 1, snake, apple))
+    play_game(path, snake, vertical_locations, horizontal_locations, playground)
     
     
 if __name__ == '__main__':
