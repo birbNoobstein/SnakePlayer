@@ -10,7 +10,7 @@ import sys
 import random
 import time
     
-from astar_algorithm import basic_moves
+from pathfinding_algorithm import basic_moves
 
 class SnackySnake:
     ''' 
