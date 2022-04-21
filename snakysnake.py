@@ -43,7 +43,7 @@ def move(width, height, lvl, direction, past):
     if lvl == 0 or direction != past:
         pg.click(width, height)
     else:
-        time.sleep(0.01)
+        time.sleep(0.02)
     
 
 def draw_grid(interval):
@@ -124,31 +124,31 @@ def window_position(frame, lowpoints = [0, 0], initial=False):
     return (position_left, position_up, width, height)
                 
 
-def play_game(path, snake_head, vertical_locations, horizontal_locations, playground):
+def play_game(path, vertical_locations, horizontal_locations, square_side, playground):
     for e, p in enumerate(path):
         if p == 'up':
-            move(horizontal_locations[snake_head[1]], 
-                 playground[1]+vertical_locations[snake_head[0]-1], 
+            move(horizontal_locations, 
+                 playground[1]+vertical_locations-square_side, 
                  e, p, path[e-1])
-            snake_head = [snake_head[0]-1, snake_head[1]]
+            vertical_locations -= square_side
         elif p == 'left':
-            move(horizontal_locations[snake_head[1]-1], 
-                 playground[1]+vertical_locations[snake_head[0]], 
+            move(horizontal_locations-square_side, 
+                 playground[1]+vertical_locations, 
                  e, p, path[e-1])
-            snake_head = [snake_head[0], snake_head[1]-1]
+            horizontal_locations -= square_side
         elif p == 'down':
-            move(horizontal_locations[snake_head[1]], 
-                 playground[1]+vertical_locations[snake_head[0]+1], 
+            move(horizontal_locations, 
+                 playground[1]+vertical_locations+square_side, 
                  e, p, path[e-1])
-            snake_head = [snake_head[0]+1, snake_head[1]]                    
+            vertical_locations += square_side  
         else:
-            move(horizontal_locations[snake_head[1]+1], 
-                 playground[1]+vertical_locations[snake_head[0]], 
+            move(horizontal_locations+square_side, 
+                 playground[1]+vertical_locations, 
                  e, p, path[e-1])
-            snake_head = [snake_head[0], snake_head[1]+1]
-        print(p, snake_head)
-        print(pg.position())
+            horizontal_locations += square_side
+        print(p, pg.position())
         time.sleep(0.04)
+    return vertical_locations, horizontal_locations
     
 
 def start_game(url):
@@ -180,13 +180,15 @@ def start_game(url):
     
     snake_len = 1
     previous = None
-    
+    pg.moveTo(playground[0]+playground[2]/2, playground[1]+playground[3]/2)
+    vl = vertical_locations[snake[0]]
+    hl = horizontal_locations[snake[1]]
     for i in range(6):
         path = list(astar(grid, snake_len, snake, apple, None))
+        print(path)
         #pg.moveTo(playground[0]+playground[2]/2, playground[1]+playground[3]/2)
-        play_game(path, snake, vertical_locations, horizontal_locations, playground)
+        vl, hl = play_game(path, vl, hl, square_side, playground)
         snake_len += 4
-        snake = apple
         apple = new_apple_position(vertical_locations, horizontal_locations, playground)
         previous = path[-1]
     
