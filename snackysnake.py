@@ -10,13 +10,16 @@ import sys
 import random
 import time
     
-from astar_algorithm import astar
+from astar_algorithm import basic_moves
 
 class SnackySnake:
     ''' 
         SNAKE GAME
+        Takes argument pathfinder which defines the algorithm that will be
+        choosing the path
     '''
-    def __init__(self):
+    def __init__(self, pathfinder):
+        self.pathfinder = pathfinder
         self.error_check = pg.init()
         pg.display.set_caption('Snacky Snake')
         self.game_window = pg.display.set_mode([800, 500])
@@ -38,7 +41,7 @@ class SnackySnake:
         self.apple = [random.randrange(1, (800//10)) * 10, random.randrange(1, (500//10)) * 10]
         
     def set_path(self, previous):
-        self.path = [astar(self.apple, self.snake, self.snake_full, previous)]
+        self.path = [self.pathfinder(self.apple, self.snake, self.snake_full, previous)]
         
     def show_score(self, size, label, midgame=True):
         """ 
@@ -128,14 +131,16 @@ class SnackySnake:
                     for e, bodypart in enumerate(self.snake_full):
                         pg.draw.rect(self.game_window, self.snake_color[e%2], pg.Rect(bodypart[0], bodypart[1], 10, 10))
                 
-                
+                print(self.apple)
+                print(self.snake)
+                print(self.snake_full, '\n')
                     
                 pg.draw.rect(self.game_window, self.apple_color, pg.Rect(self.apple[0], self.apple[1], 10, 10))
                 
                 previous = action
                 self.show_score(14, 'Length')
                 pg.display.update()
-                self.time_ctrl.tick(20)
+                self.time_ctrl.tick(150)
                 
                 reason, end = self.end_game()
                 if end:
@@ -146,5 +151,5 @@ class SnackySnake:
                 
                     
 if __name__ == '__main__':
-    game = SnackySnake()
+    game = SnackySnake(basic_moves)
     game.play()

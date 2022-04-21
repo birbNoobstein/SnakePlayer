@@ -10,13 +10,11 @@ def euclidian(snake, apple):
     return np.sqrt(np.sum(np.abs(np.subtract(snake, apple))))
 
 
-def astar(apple, snake_head_loc, full_snake, previous):
+def basic_moves(apple, snake_head_loc, full_snake, previous):
     """ 
-        Finds the best path to the apple
-        Uses Euclidian distance
+        Finds pretty basic path to the apple
+        Uses Euclidian distance and a few restrictions
     """
-
-    
     snake = snake_head_loc
     
     
@@ -24,45 +22,30 @@ def astar(apple, snake_head_loc, full_snake, previous):
                  'left':np.inf,
                  'down':np.inf,
                  'right':np.inf}
-    if snake[0] < 490 and previous != 'down':
+    if snake[0] < 490 and previous != 'down' and [snake[0], snake[1]-10] not in full_snake:
         distances['up'] = euclidian(np.array([snake[0], snake[1]-10]), apple)
-    if snake[1] > 10 and previous != 'right':
+    if snake[1] > 10 and previous != 'right'and [snake[0]-10, snake[1]] not in full_snake:
         distances['left'] = euclidian(np.array([snake[0]-10, snake[1]]), apple)
-    if snake[0] > 10 and previous != 'up':
+    if snake[0] > 10 and previous != 'up'and [snake[0], snake[1]+10] not in full_snake:
         distances['down'] = euclidian(np.array([snake[0], snake[1]+10]), apple)
-    if snake[1] < 790 and previous != 'left':
+    if snake[1] < 790 and previous != 'left' and [snake[0]+10, snake[1]] not in full_snake:
         distances['right'] = euclidian(np.array([snake[0]+10, snake[1]]), apple)
     
-    #print(distances)        
+    print(distances)
+    
+    move = [k for k, v in distances.items() if v == min(distances)]
+    if len(move) > 1:
+        if snake[1] == apple[1]-10 or snake[1] == apple[1]+10:
+            if 'left' in move:
+                return 'left'
+            return 'right'
+        elif snake[0] == apple[0]-10 or snake[0] == apple[0]+10:
+            if 'up' in move:
+                return 'up'
+            return 'down'
     return min(distances, key=distances.get)
-'''
-    if move == 'up':
-        snake = np.array([snake[0]-1, snake[1]])
-    elif move == 'left':
-        snake = np.array([snake[0], snake[1]-1])
-    elif move == 'down':
-        snake = np.array([snake[0]+1, snake[1]])
-    elif move == 'right':
-        snake = np.array([snake[0], snake[1]+1])
-            
-    grid[snake[0], snake[1]] = 2
-    #print(snake, apple)
-    yield move
-    previous = move
-    if snake[0] == apple[0] and snake[1] == apple[1]:
-        break
-    
-'''
-    
 
 
 
-
-"""
-grid = np.zeros((5, 7))
-grid[4,6] = 2
-#grid[3,4] = 2
-grid[1,1] = 1
-print(grid)
-print(list(astar(grid, 1, np.array([4,6]), np.ones(2))))
-"""
+def astar():
+    pass
