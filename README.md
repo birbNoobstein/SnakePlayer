@@ -15,7 +15,7 @@
 
 ##### Notes:
 - Everytime snake reaches the apple it gets longer for 1 square
-- At the moment it uses only Manhattan distance
+- At the moment it uses only Manhattan distance with some conditions
 
 #### A* algorithm
 
