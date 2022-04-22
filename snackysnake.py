@@ -50,7 +50,7 @@ class SnackySnake:
         """
         pair_list = [l for l in list(itertools.product(range(0, self.x, self.snake_width),
                                                        range(0, self.y, self.snake_width))) if list(l) not in self.snake_full]
-        self.apple = pair_list[random.randint(0, len(pair_list))]
+        self.apple = pair_list[random.randint(0, len(pair_list)-1)]
         
     def set_path(self, previous):
         """ 
@@ -154,5 +154,5 @@ class SnackySnake:
                 
                     
 if __name__ == '__main__':
-    game = SnackySnake(basic_moves)
+    game = SnackySnake(basic_moves, fullscreen=True)
     game.play()
