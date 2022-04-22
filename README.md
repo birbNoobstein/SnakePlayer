@@ -1,6 +1,9 @@
 # SnakePlayer
 ### AI that plays Snake using A* and reverse A* algorithm (probably not sure yet ?)
 
+#### Quickstart:
+`python snackysnake.py`
+
 #### Dependencies:
 - numpy
 - pygame
