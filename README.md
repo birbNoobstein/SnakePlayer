@@ -2,15 +2,15 @@
 ### AI that plays Snake using A* and reverse A* algorithm (probably not sure yet ?)
 
 ##### Quickstart:
-`python snackysnake.py`
+`python snackysnek.py`
 
 #### Dependencies:
 - numpy
 - pygame
 
 ##### Files:
-- `sanckysnake` --> The snake game
-- `astar_algorithm` --> Path-finding algorithm
+- `snackysnek.py` --> The snake game
+- `pathfinding_algorithm.py` --> Path-finding algorithm
 
 
 ##### Notes:
