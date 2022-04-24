@@ -117,13 +117,11 @@ class SnackySnake:
 
     def play(self):
         previous = None
-        self.snake = np.array((0, 0))
-        self.snake_full = [[0, x] for x in range(0, 250, 10)] + [[x, 250] for x in range(0, 800, 10)] + \
-                          [[790, x] for x in range(250, 400, 10)] + [[0, x] for x in range(250)]
         while True:
             pg.event.get()
             self.set_path(previous)
             path = self.path
+
             for action in path:
 
                 if action == 'up':
@@ -135,22 +133,24 @@ class SnackySnake:
                 elif action == 'right':
                     self.snake[0] += self.snake_width
 
-                self.game_window.fill(pg.Color(0, 0, 0))
+
                 self.snake_full.insert(0, self.snake.copy())
-                if self.snake[0] == self.apple[0] and self.snake[1] == self.apple[1]:
-                    # could probably get away with "if self.snake == self.apple"
+
+                if all(self.snake == self.apple):
+                    pg.draw.rect(self.game_window, self.snake_color[self.score % 2],
+                                 pg.Rect(self.apple[0], self.apple[1], self.snake_width, self.snake_width))
+
                     self.score += 1
                     self.set_apple()
-                    for e, bodypart in enumerate(self.snake_full):
-                        pg.draw.rect(self.game_window, self.snake_color[e % 2],
-                                     pg.Rect(bodypart[0], bodypart[1], self.snake_width - 2, self.snake_width - 2))
 
                 else:
+                    pg.draw.rect(self.game_window, pg.Color(0, 0, 0),
+                                 pg.Rect(self.snake_full[-1][0], self.snake_full[-1][1], self.snake_width, self.snake_width))
                     self.snake_full = self.snake_full[0:-1]
                     for e, bodypart in enumerate(self.snake_full):
                         pg.draw.rect(self.game_window, self.snake_color[e % 2],
                                      pg.Rect(bodypart[0], bodypart[1], self.snake_width - 2, self.snake_width - 2))
-                    pg.draw.rect(self.game_window, pg.Color(255, 0, 0),
+                    pg.draw.rect(self.game_window, pg.Color(255, 215, 0),
                                  pg.Rect(self.snake[0], self.snake[1], self.snake_width - 2, self.snake_width - 2))
                 # print(previous, '-->', action)
                 # print(self.apple)
