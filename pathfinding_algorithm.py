@@ -99,7 +99,7 @@ def is_safe_move(full_snake, x, y, move, currloc, size, apple):
             full = np.array(full_snake)
             if ((np.array(pos) == full).sum(axis=1) == full.shape[1]).any(): #any -> is snake
                 return False, -1
-    return True, diagonal(movloc, apple)
+    return True, euclidean(movloc, apple)
 
 
 def astar(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc):

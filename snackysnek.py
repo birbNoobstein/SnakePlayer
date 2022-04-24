@@ -136,9 +136,11 @@ class SnackySnake:
 
                 self.snake_full.insert(0, self.snake.copy())
 
-                if all(self.snake == self.apple):
-                    pg.draw.rect(self.game_window, self.snake_color[self.score % 2],
+                if (self.snake == self.apple).all():
+                    pg.draw.rect(self.game_window, pg.Color(0,0,0),
                                  pg.Rect(self.apple[0], self.apple[1], self.snake_width, self.snake_width))
+                    pg.draw.rect(self.game_window, self.snake_color[self.score % 2],
+                                 pg.Rect(self.apple[0], self.apple[1], self.snake_width - 2, self.snake_width - 2))
 
                     self.score += 1
                     self.set_apple()
