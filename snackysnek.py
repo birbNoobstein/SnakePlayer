@@ -133,19 +133,19 @@ class SnackySnake:
                 elif action == 'right':
                     self.snake[0] += self.snake_width
 
-                self.game_window.fill(pg.Color(0, 0, 0))
-                # TODO why reset the screen every frame? you could just add the new snake square and remove the last one
-                # and NOT remove the last one if the snake head is on an apple
+               
                 self.snake_full.insert(0, self.snake.copy())
-                if self.snake[0] == self.apple[0] and self.snake[1] == self.apple[1]:
-                    # could probably get away with "if self.snake == self.apple"
+                
+                if all(self.snake == self.apple):
+                    pg.draw.rect(self.game_window, self.snake_color[self.score % 2],
+                                 pg.Rect(self.apple[0], self.apple[1], self.snake_width, self.snake_width))
+
                     self.score += 1
                     self.set_apple()
-                    for e, bodypart in enumerate(self.snake_full):
-                        pg.draw.rect(self.game_window, self.snake_color[e % 2],
-                                     pg.Rect(bodypart[0], bodypart[1], self.snake_width - 2, self.snake_width - 2))
-
+                    
                 else:
+                    pg.draw.rect(self.game_window, pg.Color(0, 0, 0),
+                                 pg.Rect(self.snake_full[-1][0], self.snake_full[-1][1], self.snake_width, self.snake_width))
                     self.snake_full = self.snake_full[0:-1]
                     for e, bodypart in enumerate(self.snake_full):
                         pg.draw.rect(self.game_window, self.snake_color[e % 2],
