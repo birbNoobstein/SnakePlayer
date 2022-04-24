@@ -117,11 +117,13 @@ class SnackySnake:
 
     def play(self):
         previous = None
+        self.snake = np.array((0, 0))
+        self.snake_full = [[0, x] for x in range(0, 250, 10)] + [[x, 250] for x in range(0, 800, 10)] + \
+                          [[790, x] for x in range(250, 400, 10)] + [[0, x] for x in range(250)]
         while True:
             pg.event.get()
             self.set_path(previous)
             path = self.path
-
             for action in path:
 
                 if action == 'up':
@@ -134,8 +136,6 @@ class SnackySnake:
                     self.snake[0] += self.snake_width
 
                 self.game_window.fill(pg.Color(0, 0, 0))
-                # TODO why reset the screen every frame? you could just add the new snake square and remove the last one
-                # and NOT remove the last one if the snake head is on an apple
                 self.snake_full.insert(0, self.snake.copy())
                 if self.snake[0] == self.apple[0] and self.snake[1] == self.apple[1]:
                     # could probably get away with "if self.snake == self.apple"
@@ -150,7 +150,8 @@ class SnackySnake:
                     for e, bodypart in enumerate(self.snake_full):
                         pg.draw.rect(self.game_window, self.snake_color[e % 2],
                                      pg.Rect(bodypart[0], bodypart[1], self.snake_width - 2, self.snake_width - 2))
-
+                    pg.draw.rect(self.game_window, pg.Color(255, 0, 0),
+                                 pg.Rect(self.snake[0], self.snake[1], self.snake_width - 2, self.snake_width - 2))
                 # print(previous, '-->', action)
                 # print(self.apple)
                 # print(self.snake)
@@ -165,6 +166,7 @@ class SnackySnake:
 
                 reason, end = self.end_game()
                 if end:
+                    print(self.score)
                     self.game_window.fill(pg.Color(0, 0, 0))
                     self.game_over(reason)
 
