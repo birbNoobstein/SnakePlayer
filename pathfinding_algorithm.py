@@ -65,8 +65,9 @@ def is_dead_end(full_snake, attempt_coords, x, y, size, apple): # TODO
     reachable = 0
     visited = set()
     visited.add(tuple(attempt_coords))
+    must_be_reachable = len(full_snake) #TODO
     while q:
-        if len(visited) > empty * 0.25:
+        if len(visited) > must_be_reachable:
             return False
         cur = q.popleft()
         for move, i in [("left", (-size, 0)), ("right", (size, 0)), ("up", (0, -size)), ("down", (0, size))]:
@@ -88,17 +89,17 @@ def is_outside_edge(pos, x, y):
 def is_safe_move(full_snake, x, y, move, currloc, size, apple):
     # if move "move" is safe, from currloc location
     movloc = []
-    for h, i in [("left", (-size, 0)), ("right", (size, 0)), ("up", (0, -size)), ("down", (0, size))]:
-        if move == h:
-            attempt = currloc + np.array(i)
-            movloc = attempt
-            nextx, nexty = tuple(attempt)
-            if not (0 <= nextx < x) or not (0 <= nexty < y):
-                return False, -1
-            pos = np.array((nextx, nexty))
-            full = np.array(full_snake)
-            if ((np.array(pos) == full).sum(axis=1) == full.shape[1]).any(): #any -> is snake
-                return False, -1
+    h = move
+    i = coords_add(size)[move]
+    attempt = currloc + np.array(i)
+    movloc = attempt
+    nextx, nexty = tuple(attempt)
+    if not (0 <= nextx < x) or not (0 <= nexty < y):
+        return False, -1
+    pos = np.array((nextx, nexty))
+    full = np.array(full_snake)
+    if ((np.array(pos) == full).sum(axis=1) == full.shape[1]).any(): #any -> is snake
+        return False, -1
     return True, euclidean(movloc, apple)
 
 
@@ -198,12 +199,19 @@ def avoidance_move(full_snake, x_loc, y_loc, previous, snake_head_loc, size, app
                 or (is_snake(neigh[8], full_snake) and not is_snake(neigh[5], full_snake)):
             moves = [m if not is_dead_end(full_snake, snake_head_loc + np.array(coords_add(size)[m[1]]), x_loc, y_loc, size, apple) else
                      ((False, None), "") for m in moves]
-
+    #TODO here if it is dead end just reweight the distance heuristic not completely remove the move
     moves = [x for x in moves if x[0][0]]
     if len(moves) > 0:
         worstMove = max(moves, key=lambda x: x[0][1])
-        print(worstMove[1])
+        print(worstMove)
         return worstMove[1]
-    return -1
+    else:
+        print("no good safe move found")
+        for move in ["up", "down", "left", "right"]:
+            moves.append((is_safe_move(full_snake, x_loc, y_loc, move, snake_head_loc, size, apple), move))
+        return max(moves, key=lambda  x:x[0][1])[1]
+        ...
+
+    #return -1
 def hamiltonian():
     pass
