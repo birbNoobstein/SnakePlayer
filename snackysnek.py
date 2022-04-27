@@ -42,9 +42,11 @@ class SnackySnake:
         self.score = 0
         self.apple = np.array([self.x - self.snake_width,
                       self.y - self.snake_width])  # [self.x/2-7*self.snake_width, self.y/2-5*self.snake_width]
-        self.snake = np.array([self.x / 2, self.y / 2])
-        self.snake_full = [np.array([self.x / 2, self.y / 2])]
-        self.snake_tail = np.array([self.x / 2, self.y / 2])
+        self.snake = np.array([self.x // 2, self.y // 2])
+        self.snake_full = [np.array([self.x // 2, self.y // 2])]
+        self.snake_tail = np.array([self.x // 2, self.y // 2])
+        self.game_board = np.zeros((self.x // self.snake_width, self.y // self.snake_width))
+        self.game_board[self.x // (2 * self.snake_width), self.y // (2 * self.snake_width)] = 1
 
         self.snake_color = [pg.Color(53, 255, 0), pg.Color(28, 192, 192)]
         self.apple_color = pg.Color(255, 0, 0)
@@ -58,12 +60,14 @@ class SnackySnake:
             Chooses coordinates to where apple moves from list of all positions
             that are not occupied by snake
         """
-        full = np.array(self.snake_full)
-        pair_list = [l for l in list(itertools.product(range(0, self.x, self.snake_width),
-                                                       range(0, self.y, self.snake_width))) if not
-                     ((np.array(l) == full).sum(axis=1) == full.shape[1]).any()]
-        self.apple = pair_list[random.randint(0, len(pair_list) - 1)]
-
+        empty = np.nonzero(self.game_board == 0)
+        #full = np.array(self.snake_full)
+        #pair_list = [l for l in list(itertools.product(range(0, self.x, self.snake_width),
+        #                                               range(0, self.y, self.snake_width))) if not
+        #             ((np.array(l) == full).sum(axis=1) == full.shape[1]).any()]
+        #self.apple = pair_list[random.randint(0, len(pair_list) - 1)]
+        idx = random.randint(0, empty[0].shape[0])
+        self.apple = (empty[0][idx] * self.snake_width, empty[1][idx] * self.snake_width)
     def set_path(self, previous):
         """ 
             Uses given algorithm to find the path to the apple
@@ -133,9 +137,8 @@ class SnackySnake:
                 elif action == 'right':
                     self.snake[0] += self.snake_width
 
-
                 self.snake_full.insert(0, self.snake.copy())
-
+                self.game_board[self.snake[0]//self.snake_width, self.snake[1]//self.snake_width] = 1
                 if (self.snake == self.apple).all():
                     pg.draw.rect(self.game_window, pg.Color(0,0,0),
                                  pg.Rect(self.apple[0], self.apple[1], self.snake_width, self.snake_width))
@@ -146,6 +149,7 @@ class SnackySnake:
                     self.set_apple()
 
                 else:
+                    self.game_board[self.snake_full[-1][0]//self.snake_width, self.snake_full[-1][1]//self.snake_width] = 0
                     pg.draw.rect(self.game_window, pg.Color(0, 0, 0),
                                  pg.Rect(self.snake_full[-1][0], self.snake_full[-1][1], self.snake_width, self.snake_width))
                     self.snake_full = self.snake_full[0:-1]

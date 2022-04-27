@@ -241,24 +241,7 @@ def avoidance_move(full_snake, x_loc, y_loc, previous, snake_head_loc, size, app
     # return -1
 
 
-def generate_cyclic_path(startx, starty, size, endx, endy):
-    starting_path = {}
-    last = (startx, starty)
-    x, y = startx, starty
-    for sign in [1, -1]:  # construct basic cycle
-        increment = size * sign
-        while starty - increment <= y < endy - increment:
-            y += increment
-            starting_path[last] = (x, y)
-            last = (x, y)
-        while startx - increment <= x < endx - increment:
-            x += increment
-            starting_path[last] = (x, y)
-            last = (x, y)
-    return starting_path
-
-
-def gen_MST(size, x_loc, y_loc):
+def gen_MST(size, x_loc, y_loc, random_factor=10, image=False):
     n = int((x_loc / size) / 2)
     m = int((y_loc / size) / 2)
     print(m, n)
@@ -275,13 +258,12 @@ def gen_MST(size, x_loc, y_loc):
     while q:
         d, loc = heapq.heappop(q)
         y, x = loc
-        # vals = []
         for d in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             cy, cx = y + d[0], x + d[1]
             if (cy, cx) not in visited:
                 if 0 <= cy < m and 0 <= cx < n:
                     heapq.heappush(q,
-                                   (random.random() * 0.5 + manhattan(np.array(start), np.array((cy, cx))), (cy, cx)))
+                                   (random.random() * random_factor + manhattan(np.array(start), np.array((cy, cx))), (cy, cx)))
                     visited.add((cy, cx))
                     grid[cy, cx] = (y, x)
     cycle = np.full((m * 2, n * 2), -1.0, dtype="f, f")
@@ -290,10 +272,10 @@ def gen_MST(size, x_loc, y_loc):
     q = deque()
     q.append(start)
     while q:
-        i, j = q.popleft() #trenutno polje
+        i, j = q.popleft()  # trenutno polje
         ds = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for d in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-            cy, cx = i + d[0], j + d[1]#sosedna polja
+            cy, cx = i + d[0], j + d[1]  # sosedna polja
             if 0 <= cy < m and 0 <= cx < n and (cy, cx) not in visited:
                 vy, vx = grid[cy, cx]
                 if vy == i and vx == j:  # kaže na trenutno polje
@@ -303,19 +285,19 @@ def gen_MST(size, x_loc, y_loc):
                     diff = (np.array((cy, cx)) - np.array(tuple(grid[cy, cx])))  # določi od kje
                     if diff[0] == -1:  # iz spodaj
                         cycle[2 * cy + 2, 2 * cx + 1] = (2 * cy + 1, 2 * cx + 1)
-                        cycle[2 * cy + 1, 2 * cx    ] = (2 * cy + 2, 2 * cx    )
+                        cycle[2 * cy + 1, 2 * cx] = (2 * cy + 2, 2 * cx)
                     if diff[0] == 1:  # iz zgoraj
-                        cycle[2 * cy - 1, 2 * cx    ] = (2 * cy    , 2 * cx    )
-                        cycle[2 * cy    , 2 * cx + 1] = (2 * cy - 1, 2 * cx + 1)
+                        cycle[2 * cy - 1, 2 * cx] = (2 * cy, 2 * cx)
+                        cycle[2 * cy, 2 * cx + 1] = (2 * cy - 1, 2 * cx + 1)
                     if diff[1] == -1:  # iz desne
-                        cycle[2 * cy    , 2 * cx + 2] = (2 * cy    , 2 * cx + 1)
+                        cycle[2 * cy, 2 * cx + 2] = (2 * cy, 2 * cx + 1)
                         cycle[2 * cy + 1, 2 * cx + 1] = (2 * cy + 1, 2 * cx + 2)
                     if diff[1] == 1:  # iz leve
-                        cycle[2 * cy + 1, 2 * cx - 1] = (2 * cy + 1, 2 * cx    )
-                        cycle[2 * cy    , 2 * cx    ] = (2 * cy    , 2 * cx - 1)
-        for d in ds: #kje neporabljeni premiki
+                        cycle[2 * cy + 1, 2 * cx - 1] = (2 * cy + 1, 2 * cx)
+                        cycle[2 * cy, 2 * cx] = (2 * cy, 2 * cx - 1)
+        for d in ds:  # kje neporabljeni premiki
             if d[0] == 1:  # spodaj
-                if tuple(cycle[2 * i + 1, 2 * j    ]) == (-1 ,-1):
+                if tuple(cycle[2 * i + 1, 2 * j]) == (-1, -1):
                     cycle[2 * i + 1, 2 * j] = (2 * i + 1, 2 * j + 1)
             if d[0] == -1:  # zgoraj
                 if tuple(cycle[2 * i, 2 * j + 1]) == (-1, -1):
@@ -326,17 +308,38 @@ def gen_MST(size, x_loc, y_loc):
             if d[1] == -1:  # leve
                 if tuple(cycle[2 * i, 2 * j]) == (-1, -1):
                     cycle[2 * i, 2 * j] = (2 * i + 1, 2 * j)
-    #print(cycle)
-    import matplotlib.pyplot as plt
-    for i in range(cycle.shape[0]):
-        for j in range(cycle.shape[1]):
-            plt.plot([i, cycle[i, j][0]], [j, cycle[i, j][1]])
-    plt.show()
+    if image:
+        import matplotlib.pyplot as plt
+        for i in range(cycle.shape[0]):
+            for j in range(cycle.shape[1]):
+                plt.plot([j, cycle[i, j][1]], [i, cycle[i, j][0]])
+        plt.show()
+    return cycle
 
 
+hami_cycle = None
+
+def diff_to_direction(diff):
+    if diff[1] == -1:
+        return "down"
+    if diff[1] == 1:
+        return "up"
+    if diff[0] == -1:
+        return "right"
+    if diff[0] == 1:
+        return "left"
 def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc):
-    gen_MST(size, x_loc, y_loc)
+    global hami_cycle
+    if hami_cycle is None:
+        hami_cycle = gen_MST(size, y_loc, x_loc)
+    next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
+    next_position = np.array(tuple(next_a)) * size
+    diff = snake_head_loc - next_position
 
+    dir = diff_to_direction(diff / size)
+    return dir
 
 if __name__ == "__main__":
-    hamiltonian(None, None, None, None, 10, 800, 500)
+    hamiltonian(None, np.array((0,0)), None, None, 10, 80, 50)
+
+    hamiltonian(None, np.array((0,0)), None, None, 10, 80, 50)
