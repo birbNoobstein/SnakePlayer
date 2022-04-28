@@ -73,7 +73,7 @@ class SnackySnake:
             Uses given algorithm to find the path to the apple
         """
         self.path = [
-            self.pathfinder(self.apple, self.snake, self.snake_full, previous, self.snake_width, self.x, self.y)]
+            self.pathfinder(self.apple, self.snake, self.snake_full, previous, self.snake_width, self.x, self.y, self.game_board)]
 
     def show_text(self, font, size, text, y):
         """ 

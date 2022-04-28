@@ -25,7 +25,7 @@ def diagonal(snake, apple):
     return np.abs(snake - apple).max()
 
 
-def basic_moves(apple, snake_head_loc, full_snake, previous, size, x, y):
+def basic_moves(apple, snake_head_loc, full_snake, previous, size, x, y, game_board):
     """ 
         Finds pretty basic path to the apple
         Uses Manhattan distance and a few restrictions
@@ -67,7 +67,8 @@ opposite = {"right": "left", "left": "right", "up": "down", "down": "up"}
 
 
 def coords_add(size):
-    return {"left": (-size, 0), "right": (size, 0), "up": (0, -size), "down": (0, size)}
+    return {"left": (-size, 0), "right": (size, 0), "up": (0, -size), "down": (0, size),
+            (-size, 0): "left", (size, 0): "right", (0, -size): "up", (0, size): "down"}
 
 
 def dead_end_score(full_snake, attempt_coords, x, y, size, apple):  # TODO
@@ -118,7 +119,7 @@ def is_safe_move(full_snake, x, y, move, currloc, size, apple):
     return True, euclidean(movloc, apple)
 
 
-def astar(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc):
+def astar(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc, game_board):
     def reconstruct_path(cameFrom, cur, apple):
         total_path = [cur]
         while cur in cameFrom.keys():
@@ -136,7 +137,7 @@ def astar(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc):
         return previous
 
     ...
-    for minmax in [0.0, 1.0]:
+    for minmax in [0.0]:
         if minmax == 0.0:
             app = tuple(apple)
             heuristic_fun = manhattan
@@ -328,18 +329,48 @@ def diff_to_direction(diff):
         return "right"
     if diff[0] == 1:
         return "left"
-def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc):
+
+def apple_in_path(apple, snake_head, previous, size, game_board):
+    moves_dict = coords_add(size)
+    global hami_cycle
+    dists = []
+    moves = ["up", "down", "left", "right"]
+    for move in moves:
+        if move != opposite[previous]:
+            dist = 0
+            start = (np.array(snake_head) + np.array(moves_dict[move]))//size
+            curr = start.copy()
+            while not (curr == snake_head//size).all() or not (curr == apple).all():
+                if game_board[int(curr[0]), int(curr[1])] != 0:
+                    break
+                curr = np.array(tuple(hami_cycle[int(curr[0]), int(curr[1])]))
+                dist += 1
+            if (curr == snake_head).all() or game_board[int(curr[0]), int(curr[1])] != 0:
+                dists.append(math.inf)
+            elif (curr == (apple//size)).all():
+                dists.append(apple)
+        else:
+            dists.append(math.inf)
+    minind = np.argmin(np.array(dists))
+    return moves[minind]
+
+def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc, game_board):
     global hami_cycle
     if hami_cycle is None:
         hami_cycle = gen_MST(size, y_loc, x_loc)
-    next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
-    next_position = np.array(tuple(next_a)) * size
-    diff = snake_head_loc - next_position
+    if previous is None:
+        next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
+        next_position = np.array(tuple(next_a)) * size
+        diff = snake_head_loc - next_position
 
-    dir = diff_to_direction(diff / size)
-    return dir
+        direc = diff_to_direction(diff / size)
+    else:
+        direc = apple_in_path(apple, snake_head_loc, previous, size, game_board)
+    return direc
+
+
 
 if __name__ == "__main__":
-    hamiltonian(None, np.array((0,0)), None, None, 10, 80, 50)
+    hamiltonian(None, np.array((0,0)), None, None, 10, 800, 500)
 
     hamiltonian(None, np.array((0,0)), None, None, 10, 80, 50)
