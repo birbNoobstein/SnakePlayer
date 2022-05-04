@@ -42,9 +42,10 @@ class SnackySnake:
         self.score = 0
         self.apple = np.array([self.x - self.snake_width,
                       self.y - self.snake_width])  # [self.x/2-7*self.snake_width, self.y/2-5*self.snake_width]
-        self.snake = np.array([self.x // 2, self.y // 2])
-        self.snake_full = [np.array([self.x // 2, self.y // 2])]
-        self.snake_tail = np.array([self.x // 2, self.y // 2])
+        self.snake = np.array([int((self.x // 2)/self.snake_width) * self.snake_width,
+                               int((self.y // 2)/self.snake_width) * self.snake_width])
+        self.snake_full = [np.array([self.snake[0], self.snake[1]])]
+        self.snake_tail = np.array([self.snake[0], self.snake[1]])
         self.game_board = np.zeros((self.x // self.snake_width, self.y // self.snake_width))
         self.game_board[self.x // (2 * self.snake_width), self.y // (2 * self.snake_width)] = 1
 
@@ -66,8 +67,13 @@ class SnackySnake:
         #                                               range(0, self.y, self.snake_width))) if not
         #             ((np.array(l) == full).sum(axis=1) == full.shape[1]).any()]
         #self.apple = pair_list[random.randint(0, len(pair_list) - 1)]
-        idx = random.randint(0, empty[0].shape[0])
-        self.apple = (empty[0][idx] * self.snake_width, empty[1][idx] * self.snake_width)
+        if len(empty[0]) > 0:
+            idx = random.randint(0, empty[0].shape[0] - 1)
+            self.apple = (empty[0][idx] * self.snake_width, empty[1][idx] * self.snake_width)
+        else:
+            self.end_game()
+
+
     def set_path(self, previous):
         """ 
             Uses given algorithm to find the path to the apple

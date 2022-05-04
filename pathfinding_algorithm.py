@@ -335,22 +335,26 @@ def apple_in_path(apple, snake_head, previous, size, game_board):
     global hami_cycle
     dists = []
     moves = ["up", "down", "left", "right"]
+    apple = np.array(apple)
     for move in moves:
         if move != opposite[previous]:
             dist = 0
             start = (np.array(snake_head) + np.array(moves_dict[move]))//size
+            if not 0 <= start[0] < game_board.shape[0] or not 0 <= start[1] < game_board.shape[1]:
+                dists.append(math.inf)
+                continue
             curr = start.copy()
-            while not (curr == snake_head//size).all() or not (curr == apple).all():
+            while not (curr == (apple//size)).all():
                 if game_board[int(curr[0]), int(curr[1])] != 0:
+                    dist = math.inf
                     break
                 curr = np.array(tuple(hami_cycle[int(curr[0]), int(curr[1])]))
                 dist += 1
-            if (curr == snake_head).all() or game_board[int(curr[0]), int(curr[1])] != 0:
-                dists.append(math.inf)
-            elif (curr == (apple//size)).all():
-                dists.append(apple)
+            dists.append(dist)
         else:
             dists.append(math.inf)
+    if all([x == math.inf for x in dists]):
+        return "scam"
     minind = np.argmin(np.array(dists))
     return moves[minind]
 
@@ -358,14 +362,15 @@ def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc,
     global hami_cycle
     if hami_cycle is None:
         hami_cycle = gen_MST(size, y_loc, x_loc)
-    if previous is None:
-        next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
-        next_position = np.array(tuple(next_a)) * size
-        diff = snake_head_loc - next_position
 
-        direc = diff_to_direction(diff / size)
-    else:
-        direc = apple_in_path(apple, snake_head_loc, previous, size, game_board)
+    next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
+    next_position = np.array(tuple(next_a)) * size
+    diff = snake_head_loc - next_position
+    direc = diff_to_direction(diff / size)
+    if previous is not None:
+        h = apple_in_path(apple, snake_head_loc, previous, size, game_board)
+        if h != "scam":
+            direc = h
     return direc
 
 
