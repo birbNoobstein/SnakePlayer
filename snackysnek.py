@@ -162,11 +162,12 @@ class SnackySnake:
                     pg.draw.rect(self.game_window, pg.Color(0, 0, 0),
                                  pg.Rect(self.snake_full[-1][0], self.snake_full[-1][1], self.snake_width, self.snake_width))
                     self.snake_full = self.snake_full[0:-1]
+                    n = len(self.snake_full)
                     for e, bodypart in enumerate(self.snake_full):
                         #lahko tut zakomentirata če je biu prejšn color code boljši
-                        h = ( e) % 50 + 90  # Select random green'ish hue from hue wheel
-                        s = (( e) % 80 + 20) / 100
-                        v = (( e) % 80 + 30) / 100
+                        h = ((n - e)/n)*50 + 90 # 90 - 140
+                        s = ((n - e)/n)*0.8 + 0.2 #0.2 - 1
+                        v = ((n - e)/n)*0.7 + 0.3 #0.3 - 1
 
                         r, g, b = hsv_to_rgb(h, s, v)
                         #print(r, g, b)

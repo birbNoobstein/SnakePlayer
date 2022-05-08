@@ -365,7 +365,7 @@ def longest_skip(apple, snake_head, previous, size, game_board):
 def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc, game_board):
     global hami_cycle
     if hami_cycle is None:
-        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=0.1,image=False)
+        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=0.1, image=False)
 
     next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
     next_position = np.array(tuple(next_a)) * size
