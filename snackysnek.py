@@ -127,10 +127,13 @@ class SnackySnake:
 
     def play(self):
         previous = None
+        cntr = -1
         while True:
+            cntr += 1
             pg.event.get()
             self.set_path(previous)
             path = self.path
+
 
             for action in path:
 
@@ -160,7 +163,14 @@ class SnackySnake:
                                  pg.Rect(self.snake_full[-1][0], self.snake_full[-1][1], self.snake_width, self.snake_width))
                     self.snake_full = self.snake_full[0:-1]
                     for e, bodypart in enumerate(self.snake_full):
-                        pg.draw.rect(self.game_window, self.snake_color[e % 2],
+                        #lahko tut zakomentirata če je biu prejšn color code boljši
+                        h = ( e) % 50 + 90  # Select random green'ish hue from hue wheel
+                        s = (( e) % 80 + 20) / 100
+                        v = (( e) % 80 + 30) / 100
+
+                        r, g, b = hsv_to_rgb(h, s, v)
+                        #print(r, g, b)
+                        pg.draw.rect(self.game_window, pg.Color(int(r * 255), min(int(g * 255), 255), int(b * 255)),#self.snake_color[e % 2],
                                      pg.Rect(bodypart[0], bodypart[1], self.snake_width - 2, self.snake_width - 2))
                     pg.draw.rect(self.game_window, pg.Color(255, 215, 0),
                                  pg.Rect(self.snake[0], self.snake[1], self.snake_width - 2, self.snake_width - 2))
@@ -182,6 +192,35 @@ class SnackySnake:
                     self.game_window.fill(pg.Color(0, 0, 0))
                     self.game_over(reason)
 
+def hsv_to_rgb(h, s, v):
+    """Converts HSV value to RGB values
+    Hue is in range 0-359 (degrees), value/saturation are in range 0-1 (float)
+
+    Direct implementation of:
+    http://en.wikipedia.org/wiki/HSL_and_HSV#Conversion_from_HSV_to_RGB
+    """
+    h, s, v = [float(x) for x in (h, s, v)]
+
+    hi = (h / 60) % 6
+    hi = int(round(hi))
+
+    f = (h / 60) - (h / 60)
+    p = v * (1 - s)
+    q = v * (1 - f * s)
+    t = v * (1 - (1 - f) * s)
+
+    if hi == 0:
+        return v, t, p
+    elif hi == 1:
+        return q, v, p
+    elif hi == 2:
+        return p, v, t
+    elif hi == 3:
+        return p, q, v
+    elif hi == 4:
+        return t, p, v
+    elif hi == 5:
+        return v, p, q
 
 def run():
     # Parse arguments

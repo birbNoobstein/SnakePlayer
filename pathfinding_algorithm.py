@@ -242,7 +242,7 @@ def avoidance_move(full_snake, x_loc, y_loc, previous, snake_head_loc, size, app
     # return -1
 
 
-def gen_MST(size, x_loc, y_loc, random_factor=10, image=False):
+def gen_MST(size, x_loc, y_loc, random_factor=10.0, image=False):
     n = int((x_loc / size) / 2)
     m = int((y_loc / size) / 2)
     print(m, n)
@@ -313,7 +313,7 @@ def gen_MST(size, x_loc, y_loc, random_factor=10, image=False):
         import matplotlib.pyplot as plt
         for i in range(cycle.shape[0]):
             for j in range(cycle.shape[1]):
-                plt.plot([j, cycle[i, j][1]], [i, cycle[i, j][0]])
+                plt.plot([i, cycle[i, j][0]], [-j, -cycle[i, j][1]])
         plt.show()
     return cycle
 
@@ -330,52 +330,51 @@ def diff_to_direction(diff):
     if diff[0] == 1:
         return "left"
 
-def apple_in_path(apple, snake_head, previous, size, game_board):
-    moves_dict = coords_add(size)
+def longest_skip(apple, snake_head, previous, size, game_board):
+    moves_dict = coords_add(1)
     global hami_cycle
     dists = []
     moves = ["up", "down", "left", "right"]
-    apple = np.array(apple)
+    apple = np.array(apple)//size
+    start = (np.array(snake_head)//size)
+    valid_moves = []
+    names = []
     for move in moves:
-        if move != opposite[previous]:
-            dist = 0
-            start = (np.array(snake_head) + np.array(moves_dict[move]))//size
-            if not 0 <= start[0] < game_board.shape[0] or not 0 <= start[1] < game_board.shape[1]:
-                dists.append(math.inf)
-                continue
-            curr = start.copy()
-            while not (curr == (apple//size)).all():
-                if game_board[int(curr[0]), int(curr[1])] != 0:
-                    dist = math.inf
-                    break
-                curr = np.array(tuple(hami_cycle[int(curr[0]), int(curr[1])]))
-                dist += 1
-            dists.append(dist)
-        else:
-            dists.append(math.inf)
-    if all([x == math.inf for x in dists]):
-        return "scam"
-    minind = np.argmin(np.array(dists))
-    return moves[minind]
+        if previous is None or move != opposite[previous]:
+            offset = moves_dict[move]
+            next = (start[0] + offset[0], start[1] + offset[1])
+            if 0 <= next[0] < game_board.shape[0] and 0 <= next[1] < game_board.shape[1]:
+                if game_board[next[0], next[1]] == 0:
+                    valid_moves.append(next)
+                    names.append(move)
+    curr = tuple(hami_cycle[int(start[0]), int(start[1])])
+    maxskip = diff_to_direction(start - np.array(curr))
+    while game_board[int(curr[0]), int(curr[1])] == 0:
+        if curr[0] == apple[0] and curr[1] == apple[1]:
+            break
+        try:
+            n = valid_moves.index(curr)
+            maxskip = names[n]
+        except ValueError:
+            pass
+        curr = tuple(hami_cycle[int(curr[0]), int(curr[1])])
+        #TRENUTNO: vsakič vzame največji skip
+        #TODO: Dodaj skip če ta skip pomeni da je pot do jabolka krajša
+    return maxskip
 
 def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc, game_board):
     global hami_cycle
     if hami_cycle is None:
-        hami_cycle = gen_MST(size, y_loc, x_loc)
+        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=0.1,image=False)
 
     next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
     next_position = np.array(tuple(next_a)) * size
     diff = snake_head_loc - next_position
     direc = diff_to_direction(diff / size)
-    if previous is not None:
-        h = apple_in_path(apple, snake_head_loc, previous, size, game_board)
-        if h != "scam":
-            direc = h
+    direc = longest_skip(apple, snake_head_loc, previous, size, game_board)
     return direc
 
 
 
 if __name__ == "__main__":
-    hamiltonian(None, np.array((0,0)), None, None, 10, 800, 500)
-
-    hamiltonian(None, np.array((0,0)), None, None, 10, 80, 50)
+    ...
