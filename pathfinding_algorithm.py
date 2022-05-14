@@ -30,39 +30,26 @@ def basic_moves(apple, snake_head_loc, full_snake, previous, size, x, y, game_bo
         Finds pretty basic path to the apple
         Uses Manhattan distance and a few restrictions
     """
-    snake = snake_head_loc
-
-    distances = {'up': np.inf,
-                 'left': np.inf,
-                 'down': np.inf,
-                 'right': np.inf}
-    full = np.array(full_snake)
-    snake_is_up = ((np.array([snake[0], snake[1] - size]) == full).sum(axis=1) == full.shape[1]).any()
-    if snake[1] >= 0 and previous != 'down' and not snake_is_up:
-        distances['up'] = manhattan(np.array([snake[0], snake[1] - size]), apple)
-    snake_is_left = ((np.array([snake[0] - size, snake[1]]) == full).sum(axis=1) == full.shape[1]).any()
-    if snake[0] >= 0 and previous != 'right' and not snake_is_left:
-        distances['left'] = manhattan(np.array([snake[0] - size, snake[1]]), apple)
-    snake_is_down = ((np.array([snake[0], snake[1] + size]) == full).sum(axis=1) == full.shape[1]).any()
-    if snake[1] < y - size and previous != 'up' and not snake_is_down:
-        distances['down'] = manhattan(np.array([snake[0], snake[1] + size]), apple)
-    snake_is_right = ((np.array([snake[0] + size, snake[1]]) == full).sum(axis=1) == full.shape[1]).any()
-    if snake[0] < x - size and previous != 'left' and not snake_is_right:
-        distances['right'] = manhattan(np.array([snake[0] + size, snake[1]]), apple)
-
-    # move = [k for k, v in distances.items() if v == min(distances)]
-    # if len(move) > 1:
-    #    if 'left' in move and snake[0] > size:
-    #        return 'left'
-    #    elif 'right' in move and snake[0] < x-size:
-    #        return 'right'
-    #    elif 'up' in move and snake[1] > size:
-    #        return 'up'
-    #    elif 'down' in move and snake[0] < y-size:
-    #        return 'down'
-    return min(distances, key=distances.get)
-
-
+    diag = False
+    mapping = coords_add(size)
+    snake = snake_head_loc.copy()
+    valid_moves = ["up", "down", "left", "right"]
+    coords = []
+    for move in ["up", "down", "left", "right"]:
+        next_pos = np.array(mapping[move]) + snake
+        if 0 <= next_pos[0] < x and 0 <= next_pos[1] < y and game_board[next_pos[0]//size, next_pos[1]//size] == 0:
+            coords.append(next_pos)
+        else:
+            valid_moves.remove(move)
+    if coords:
+        cs = [manhattan(x, apple) for x in coords]
+        min_ids = np.flatnonzero(cs == np.min(cs))
+        if diag:
+            if valid_moves[min_ids[0]] == previous and len(min_ids) > 1:
+                return valid_moves[min_ids[1]]
+        return valid_moves[min_ids[0]]
+    else:
+        return "dead"
 opposite = {"right": "left", "left": "right", "up": "down", "down": "up"}
 
 
@@ -365,7 +352,7 @@ def longest_skip(apple, snake_head, previous, size, game_board):
 def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc, game_board):
     global hami_cycle
     if hami_cycle is None:
-        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=0.1, image=False)
+        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=100, image=False)
 
     next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
     next_position = np.array(tuple(next_a)) * size

@@ -126,7 +126,7 @@ class SnackySnake:
         sys.exit()
 
     def play(self):
-        previous = None
+        previous = "left"
         cntr = -1
         while True:
             cntr += 1
