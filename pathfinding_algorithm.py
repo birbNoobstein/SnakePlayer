@@ -298,9 +298,12 @@ def gen_MST(size, x_loc, y_loc, random_factor=10.0, image=False):
                     cycle[2 * i, 2 * j] = (2 * i + 1, 2 * j)
     if image:
         import matplotlib.pyplot as plt
+        plt.rcParams["figure.figsize"] = (8,4)
         for i in range(cycle.shape[0]):
             for j in range(cycle.shape[1]):
                 plt.plot([i, cycle[i, j][0]], [-j, -cycle[i, j][1]])
+        plt.title('Hamiltonian path')
+        plt.savefig('hamiltonian_cycle.png')
         plt.show()
     return cycle
 
@@ -349,19 +352,76 @@ def longest_skip(apple, snake_head, previous, size, game_board):
         #TODO: Dodaj skip če ta skip pomeni da je pot do jabolka krajša
     return maxskip
 
+
+def find_valid_moves(cycle_1d, moves, moves_dict, previous, start, game_board):
+    valid_cycle_indices = []
+    for move in moves:
+        if previous is None or move != opposite[previous]:
+            offset = moves_dict[move]
+            next = (start[0] + offset[0], start[1] + offset[1])
+            if 0 <= next[0] < game_board.shape[0] and 0 <= next[1] < game_board.shape[1]:
+                if previous is None or move != opposite[previous]:
+                    index = np.where(np.array(list(map(lambda x: x == np.array(next).astype('f, f')[0], cycle_1d))))[0]
+                    valid_cycle_indices.append(index)
+    return valid_cycle_indices
+
+def cycle_to_1d(cycle, start):
+    cycle_1d = []
+    element = np.array(start).astype('f, f')[0]
+    while element not in cycle_1d:
+        cycle_1d.append(element)
+        element = cycle[int(element[0]), int(element[1])]
+    return np.array(cycle_1d, dtype='object')
+
+def skip_part(apple, snake_head, snake_full, previous, size, game_board):
+    moves = ["up", "down", "left", "right"]
+    moves_dict = coords_add(1)
+    print('md:', moves_dict)
+    cycle_1d = cycle_to_1d(hami_cycle, snake_head)
+    valid_moves = find_valid_moves(cycle_1d, moves, moves_dict, previous, snake_head, game_board)
+    names = []
+    head = np.where(np.array(list(map(lambda x: x == np.array(tuple(snake_head)).astype('f, f')[0], cycle_1d))))[0][0]
+    tail = np.where(np.array(list(map(lambda x: x == snake_full[-1].astype('f, f'), cycle_1d))))[0][0]
+    print('H', head, cycle_1d[head])
+    print('T', tail, cycle_1d[tail])
+    curr = tuple(hami_cycle[snake_head[0], snake_head[1]])
+    print('curr', curr)
+    print('diff', snake_head - np.array([int(curr[0]), int(curr[1])]))
+    maxskip = diff_to_direction(snake_head - np.array([int(curr[0]), int(curr[1])]))
+    print('Hami\n', hami_cycle)
+    print('1D\n', cycle_1d)
+    print(game_board[int(curr[0]), int(curr[1])])
+
+    while game_board[int(curr[0]), int(curr[1])] == 0:
+        if curr[0] == apple[0] and curr[1] == apple[1]:
+            break
+        try:
+
+            #print('n', position_to_validate, 'head', head, 'tail', tail)
+            if curr > head and curr < tail or curr < head and curr > tail:
+                maxskip = names[valid_moves.index[curr]]
+        except ValueError:
+            pass
+        head = np.where(np.array(list(map(lambda x: x == np.array(tuple(curr)).astype('f, f')[0], cycle_1d))))[0][0]
+        print(head)
+        if len(snake_full) >= 2:
+            tail = np.where(np.array(list(map(lambda x: x == snake_full[-2].astype('f, f'), cycle_1d))))[0][0]
+        curr = tuple(hami_cycle[snake_head - np.array([int(curr[0]), int(curr[1])])])
+    return maxskip
+
 def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc, game_board):
     global hami_cycle
     if hami_cycle is None:
-        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=100, image=False)
-
+        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=0.1, image=False)
     next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
     next_position = np.array(tuple(next_a)) * size
     diff = snake_head_loc - next_position
     direc = diff_to_direction(diff / size)
+    #direc = skip_part(apple, snake_head_loc, full_snake, previous, size, game_board)
     direc = longest_skip(apple, snake_head_loc, previous, size, game_board)
     return direc
 
 
 
 if __name__ == "__main__":
-    ...
+    hamiltonian(np.array((4, 8)), np.array((1,1)), np.array(np.array((1,1))), None, 10, 800, 500, np.zeros((10, 10)))

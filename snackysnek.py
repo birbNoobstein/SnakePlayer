@@ -55,6 +55,9 @@ class SnackySnake:
         self.previous = None
         self.game_speed = args.game_speed
         self.time_ctrl = pg.time.Clock()
+        self.test = args.test
+        self.test_mode = True if self.test > 1 else False
+        self.game_results = []
 
     def set_apple(self):
         """ 
@@ -62,15 +65,11 @@ class SnackySnake:
             that are not occupied by snake
         """
         empty = np.nonzero(self.game_board == 0)
-        #full = np.array(self.snake_full)
-        #pair_list = [l for l in list(itertools.product(range(0, self.x, self.snake_width),
-        #                                               range(0, self.y, self.snake_width))) if not
-        #             ((np.array(l) == full).sum(axis=1) == full.shape[1]).any()]
-        #self.apple = pair_list[random.randint(0, len(pair_list) - 1)]
         if len(empty[0]) > 0:
             idx = random.randint(0, empty[0].shape[0] - 1)
             self.apple = (empty[0][idx] * self.snake_width, empty[1][idx] * self.snake_width)
         else:
+            self.game_over('Max length reached')
             self.end_game()
 
 
@@ -108,10 +107,16 @@ class SnackySnake:
             Game termination, displays the YOU DIED text, death reason and 
             final length of the snake
         """
-        self.show_text('constantia',
-                       60,
-                       'YOU DIED',
-                       self.y / 5)
+        if self.score >= self.x/10 * self.y/10 - 1:
+            self.show_text('constantia',
+                           60,
+                           'YOU WON',
+                           self.y / 5)
+        else:
+            self.show_text('constantia',
+                           60,
+                           'YOU DIED',
+                           self.y / 5)
         self.show_text('inkfree',
                        18,
                        'Final length: ' + str(self.score),
@@ -122,8 +127,27 @@ class SnackySnake:
                        self.y / 1.6)
         pg.display.flip()
         time.sleep(3)
-        pg.quit()
-        sys.exit()
+        if self.test == 1:
+            self.game_results.append(self.score)
+            print(self.game_results)
+            print(self.test_mode)
+            pg.quit()
+            sys.exit()
+        else:
+            self.game_results.append(self.score)
+            self.score = 0
+            self.snake = np.array([int((self.x // 2)/self.snake_width) * self.snake_width,
+                                   int((self.y // 2)/self.snake_width) * self.snake_width])
+            self.snake_full = [np.array([self.snake[0], self.snake[1]])]
+            self.snake_tail = np.array([self.snake[0], self.snake[1]])
+            self.game_board = np.zeros((self.x // self.snake_width, self.y // self.snake_width))
+            self.game_board[self.x // (2 * self.snake_width), self.y // (2 * self.snake_width)] = 1
+            self.set_apple()
+            self.game_window.fill(pg.Color(0, 0, 0))
+            self.test -= 1
+            time.sleep(1)
+            self.play()
+            
 
     def play(self):
         previous = "left"
@@ -175,10 +199,6 @@ class SnackySnake:
                                      pg.Rect(bodypart[0], bodypart[1], self.snake_width - 2, self.snake_width - 2))
                     pg.draw.rect(self.game_window, pg.Color(255, 215, 0),
                                  pg.Rect(self.snake[0], self.snake[1], self.snake_width - 2, self.snake_width - 2))
-                # print(previous, '-->', action)
-                # print(self.apple)
-                # print(self.snake)
-                # print(self.snake_full, '\n')
 
                 pg.draw.rect(self.game_window, self.apple_color,
                              pg.Rect(self.apple[0], self.apple[1], self.snake_width, self.snake_width))
@@ -189,9 +209,10 @@ class SnackySnake:
 
                 reason, end = self.end_game()
                 if end:
-                    print(self.score)
                     self.game_window.fill(pg.Color(0, 0, 0))
                     self.game_over(reason)
+                    
+                
 
 def hsv_to_rgb(h, s, v):
     """Converts HSV value to RGB values
@@ -232,6 +253,8 @@ def run():
                         help='Which pathfinder should the snek use, options: "basic", "astar", "hamilton"')
     parser.add_argument('--game_speed', type=int, default=200,
                         help='More is faster, 10 is slow 1000 is really dang fast')
+    parser.add_argument('--test', type=int, default=1,
+                        help='Indicates how many runs to test an algorithm')
     # You can add your own
     args = parser.parse_args()
     game = SnackySnake(args)
