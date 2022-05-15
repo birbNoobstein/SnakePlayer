@@ -59,7 +59,6 @@ class SnackySnake:
         
         self.test = args.test
         self.test_mode = True if self.test > 1 else False
-        self.game_results = [self.algorithm]
 
     def set_apple(self):
         """ 
@@ -95,7 +94,7 @@ class SnackySnake:
     def test_results_get(self):
         import csv
         with open('results.csv', 'a', newline='\n', encoding='utf-8') as file:
-            csv.writer(file).writerow(self.game_results)
+            csv.writer(file).writerow([self.algorithm, self.score])
         
 
     def end_game(self):
@@ -115,35 +114,33 @@ class SnackySnake:
             Game termination, displays the YOU DIED text, death reason and 
             final length of the snake
         """
-        if self.score >= self.x/10 * self.y/10 - 1:
-            self.show_text('constantia',
-                           60,
-                           'YOU WON',
-                           self.y / 5)
-        else:
-            self.show_text('constantia',
-                           60,
-                           'YOU DIED',
-                           self.y / 5)
-        self.show_text('inkfree',
-                       18,
-                       'Final length: ' + str(self.score),
-                       self.y / 2)
-        self.show_text('inkfree',
-                       20,
-                       'Reason : ' + reason,
-                       self.y / 1.6)
-        pg.display.flip()
-        time.sleep(3)
         if self.test == 1:
+            if self.score >= self.x/10 * self.y/10 - 1:
+                self.show_text('constantia',
+                               60,
+                               'YOU WON',
+                               self.y / 5)
+            else:
+                self.show_text('constantia',
+                               60,
+                               'YOU DIED',
+                               self.y / 5)
+                self.show_text('inkfree',
+                               18,
+                               'Final length: ' + str(self.score),
+                               self.y / 2)
+                self.show_text('inkfree',
+                               20,
+                               'Reason : ' + reason,
+                               self.y / 1.6)
+                pg.display.flip()
+                time.sleep(3)
             if self.test_mode:
-                self.game_results.append(self.score)
-                print(self.game_results)
                 self.test_results_get()
             pg.quit()
             sys.exit()
         else:
-            self.game_results.append(self.score)
+            self.test_results_get()
             self.score = 0
             self.snake = np.array([int((self.x // 2)/self.snake_width) * self.snake_width,
                                    int((self.y // 2)/self.snake_width) * self.snake_width])
