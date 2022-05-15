@@ -26,8 +26,9 @@ class SnackySnake:
     def __init__(self, args):
         #   Set display window
 
-        pathfinder = basic_moves if args.pathfinder.lower() == "basic" \
-            else astar if args.pathfinder.lower() == "astar" \
+        self.algorithm = args.pathfinder.lower()
+        pathfinder = basic_moves if self.algorithm == "basic" \
+            else astar if self.algorithm == "astar" \
             else hamiltonian
         self.pathfinder = pathfinder
         fullscreen = args.fullscreen
@@ -55,9 +56,10 @@ class SnackySnake:
         self.previous = None
         self.game_speed = args.game_speed
         self.time_ctrl = pg.time.Clock()
+        
         self.test = args.test
         self.test_mode = True if self.test > 1 else False
-        self.game_results = []
+        self.game_results = [self.algorithm]
 
     def set_apple(self):
         """ 
@@ -89,6 +91,12 @@ class SnackySnake:
         rect = surface.get_rect()
         rect.midtop = (self.x / 2, y)
         self.game_window.blit(surface, rect)
+        
+    def test_results_get(self):
+        import csv
+        with open('results.csv', 'a', newline='\n', encoding='utf-8') as file:
+            csv.writer(file).writerow(self.game_results)
+        
 
     def end_game(self):
         """ 
@@ -128,9 +136,10 @@ class SnackySnake:
         pg.display.flip()
         time.sleep(3)
         if self.test == 1:
-            self.game_results.append(self.score)
-            print(self.game_results)
-            print(self.test_mode)
+            if self.test_mode:
+                self.game_results.append(self.score)
+                print(self.game_results)
+                self.test_results_get()
             pg.quit()
             sys.exit()
         else:
