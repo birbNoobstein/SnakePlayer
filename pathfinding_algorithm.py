@@ -298,12 +298,11 @@ def gen_MST(size, x_loc, y_loc, random_factor=10.0, image=False):
                     cycle[2 * i, 2 * j] = (2 * i + 1, 2 * j)
     if image:
         import matplotlib.pyplot as plt
-        plt.rcParams["figure.figsize"] = (8,4)
+        plt.rcParams["figure.figsize"] = (4, 4)
         for i in range(cycle.shape[0]):
             for j in range(cycle.shape[1]):
                 plt.plot([i, cycle[i, j][0]], [-j, -cycle[i, j][1]])
-        plt.title('Hamiltonian path')
-        plt.savefig('hamiltonian_cycle.png')
+        #plt.savefig('hamiltonian_cycle.png')
         plt.show()
     return cycle
 
@@ -412,7 +411,7 @@ def skip_part(apple, snake_head, snake_full, previous, size, game_board):
 def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc, game_board):
     global hami_cycle
     if hami_cycle is None:
-        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=0.1, image=False)
+        hami_cycle = gen_MST(size, y_loc, x_loc, random_factor=0.1, image=True)
     next_a = hami_cycle[int(snake_head_loc[0]/size), int(snake_head_loc[1]/size)]
     next_position = np.array(tuple(next_a)) * size
     diff = snake_head_loc - next_position
@@ -424,4 +423,5 @@ def hamiltonian(apple, snake_head_loc, full_snake, previous, size, x_loc, y_loc,
 
 
 if __name__ == "__main__":
-    hamiltonian(np.array((4, 8)), np.array((1,1)), np.array(np.array((1,1))), None, 10, 800, 500, np.zeros((10, 10)))
+    hamiltonian(np.array((4, 8)), np.array((1,1)), np.array(np.array((1,1))), None, 10, 200, 200, np.zeros((10, 10)))
+    #basic_moves(np.array((4, 8)), np.array((1,1)), np.array(np.array((1,1))), None, 10, 800, 500, np.zeros((10, 10)))

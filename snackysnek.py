@@ -13,6 +13,7 @@ import time
 import numpy as np
 import itertools
 
+
 from pathfinding_algorithm import basic_moves, astar, hamiltonian
 
 
@@ -34,8 +35,8 @@ class SnackySnake:
         fullscreen = args.fullscreen
         self.error_check = pg.init()
         pg.display.set_caption('Snacky Snake')
-        self.x = int(np.floor(pg.display.get_desktop_sizes()[0][0] / 20) * 20) if fullscreen else 800
-        self.y = int(np.floor(pg.display.get_desktop_sizes()[0][1] / 20) * 20) if fullscreen else 500
+        self.x = int(np.floor(pg.display.get_desktop_sizes()[0][0] / 20) * 20) if fullscreen else 200
+        self.y = int(np.floor(pg.display.get_desktop_sizes()[0][1] / 20) * 20) if fullscreen else 200
         self.game_window = pg.display.set_mode([self.x, self.y])
 
         #   Set positions
@@ -91,10 +92,10 @@ class SnackySnake:
         rect.midtop = (self.x / 2, y)
         self.game_window.blit(surface, rect)
         
-    def test_results_get(self):
+    def test_results_get(self, reason):
         import csv
         with open('results.csv', 'a', newline='\n', encoding='utf-8') as file:
-            csv.writer(file).writerow([self.algorithm, self.score])
+            csv.writer(file).writerow([self.algorithm, self.score, reason])
         
 
     def end_game(self):
@@ -136,11 +137,11 @@ class SnackySnake:
                 pg.display.flip()
                 time.sleep(3)
             if self.test_mode:
-                self.test_results_get()
+                self.test_results_get(reason)
             pg.quit()
             sys.exit()
         else:
-            self.test_results_get()
+            self.test_results_get(reason)
             self.score = 0
             self.snake = np.array([int((self.x // 2)/self.snake_width) * self.snake_width,
                                    int((self.y // 2)/self.snake_width) * self.snake_width])
